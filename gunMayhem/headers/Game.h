@@ -20,6 +20,7 @@ private:
     Event event;
     VideoMode videoMode;
     Player player;
+    int time = 0;
     bool pressed;
 
     void initVariables();
