@@ -4,9 +4,9 @@
 
 #include "Player.h"
 
-void Player::initPlayer() {
+void Player::initPlayer(Color c) {
     this->rect.setSize(Vector2f(30.f,50.f));
-    this->rect.setFillColor(Color::Green);
+    this->rect.setFillColor(c);
     this->lookingRight = true;
 }
 
@@ -71,7 +71,7 @@ void Player::shoot() {
 
 
 Player::Player() {
-    this->initPlayer();
+
 }
 
 Player::~Player() {

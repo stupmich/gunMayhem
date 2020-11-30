@@ -50,7 +50,7 @@ public:
     const Weapon &getWeapon() const;
 
 
-    void initPlayer();
+    void initPlayer(Color c);
     void moveRight();
     void moveLeft();
     void move();

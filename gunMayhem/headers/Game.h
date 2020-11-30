@@ -19,8 +19,14 @@ private:
     RenderWindow* gameWindow;
     Event event;
     VideoMode videoMode;
-    Player player;
+    Player player1;
+    Player player2;
+
     bool pressed;
+
+    sf::IpAddress ip = sf::IpAddress::getLocalAddress();
+    sf::TcpSocket socket;
+    char connectionType;
 
     void initVariables();
     void initWindow();
