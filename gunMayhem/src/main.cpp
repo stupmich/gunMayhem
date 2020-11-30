@@ -5,7 +5,7 @@
 int main() {
     Game game;
 
-
+//branch
     while (game.getWindowIsOpen()) {
         game.update();
         game.render();
