@@ -24,7 +24,7 @@ private:
     float velY;
     float velX;
     bool lookingRight;
-    bool isOnGround = true;
+    bool isOnGround = false;
     Weapon weapon;
 
 
