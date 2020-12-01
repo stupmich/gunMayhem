@@ -35,7 +35,6 @@ void Game::update() {
         this->player2.getRect().setPosition(p2Position);
     }
 
-
     for (auto &bullet : this->player1.getWeapon().getBullets()) // access by reference to avoid copying
     {
         bullet->move();
@@ -45,20 +44,14 @@ void Game::update() {
 void Game::render() {
     this->gameWindow->clear();
 
-    this->gameWindow->draw(this->player1.getRect());
-    this->gameWindow->draw(this->player2.getRect());
-
-
-
-    for (auto &bullet : this->player1.getWeapon().getBullets()) // access by reference to avoid copying
-
-
     for (int i = 0; i < 4;i++) {
         this->gameWindow->draw(this->platforms[i].getRect());
     }
-    this->gameWindow->draw(this->player.getRect());
 
-    for (auto &bullet : this->player.getWeapon().getBullets()) // access by reference to avoid copying
+    this->gameWindow->draw(this->player1.getRect());
+    this->gameWindow->draw(this->player2.getRect());
+
+    for (auto &bullet : this->player1.getWeapon().getBullets()) // access by reference to avoid copying
     {
         this->gameWindow->draw(bullet->getBullet());
     }
@@ -67,7 +60,6 @@ void Game::render() {
 
 void Game::initVariables() {
     this->gameWindow = nullptr;
-
 
     std::cout << " (s) for server, (c) for client" << std::endl;
     std::cin >> this->connectionType;
@@ -80,10 +72,6 @@ void Game::initVariables() {
         socket.connect(this->ip,2010);
     }
 
-
-    this->player1.initPlayer(Color::Blue);
-    this->player2.initPlayer(Color::Green);
-    this->player.initPlayer();
     Platform p1;
     Platform p2;
     Platform p3;
@@ -96,6 +84,10 @@ void Game::initVariables() {
     this->platforms[1] = p2;
     this->platforms[2] = p3;
     this->platforms[3] = p4;
+
+
+    this->player1.initPlayer(Color::Blue);
+    this->player2.initPlayer(Color::Green);
 
 }
 
@@ -140,10 +132,10 @@ void Game::pollEvents() {
 
         else if (Keyboard::isKeyPressed(Keyboard::S))
         {
-            if (this->player1.getIsOnGround() && !this->player.isJumping1())
+            if (this->player1.getIsOnGround() && !this->player1.isJumping1())
             {
                 this->player1.setIsOnGround(false);
-                this->player1.getRect().setPosition(this->player.getRect().getPosition().x,this->player.getRect().getPosition().y + 10);
+                this->player1.getRect().setPosition(this->player1.getRect().getPosition().x,this->player1.getRect().getPosition().y + 10);
             }
 
         }
@@ -162,8 +154,8 @@ void Game::gravitation() {
         this->player1.setVelY(10.f);
     }
     for (int i = 0; i < 4;i++) {
-        if (this->platforms[i].getRect().getGlobalBounds().intersects(this->player.getRect().getGlobalBounds()) &&
-        this->platforms[i].getRect().getPosition().y >= this->player.getRect().getPosition().y + 40) {
+        if (this->platforms[i].getRect().getGlobalBounds().intersects(this->player1.getRect().getGlobalBounds()) &&
+            this->platforms[i].getRect().getPosition().y >= this->player1.getRect().getPosition().y + 40) {
             this->player1.setIsOnGround(true);
             if (!this->player1.isJumping1())
                 this->player1.setVelY(0);
@@ -171,6 +163,5 @@ void Game::gravitation() {
         } else {
             this->player1.setIsOnGround(false);
         }
-
     }
 }

@@ -12,6 +12,7 @@
 #include <SFML/Network.hpp>
 #include <SFML/Audio.hpp>
 #include "Player.h"
+#include "Platform.h"
 using namespace sf;
 
 class Game{
@@ -22,7 +23,7 @@ private:
     Player player1;
     Player player2;
     int time = 0;
-    bool pressed;
+    Platform platforms[4];
 
     sf::IpAddress ip = sf::IpAddress::getLocalAddress();
     sf::TcpSocket socket;

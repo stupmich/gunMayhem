@@ -6,6 +6,7 @@
 
 void Player::initPlayer(Color c) {
     this->rect.setSize(Vector2f(30.f,50.f));
+    this->rect.setPosition(100.f,-300.f);
     this->rect.setFillColor(c);
     this->lookingRight = true;
 }
@@ -13,12 +14,6 @@ void Player::initPlayer(Color c) {
 RectangleShape &Player::getRect()  {
     return rect;
 }
-
-void Player::jump() {
-    if (this->velY == 0) {
-            this->velY=-20.f;
-        }
-    }
 
 void Player::setVelY(float velY) {
     Player::velY = velY;
@@ -53,13 +48,6 @@ void Player::setIsOnGround(bool isOnGround) {
     Player::isOnGround = isOnGround;
 }
 
-float Player::getVelY() const {
-    return velY;
-}
-
-float Player::getVelX() const {
-    return velX;
-}
 
 void Player::shoot() {
     if (this->lookingRight) {
@@ -76,10 +64,6 @@ Player::Player() {
 
 Player::~Player() {
 
-}
-
-bool Player::isLookingRight() const {
-    return lookingRight;
 }
 
 const Weapon &Player::getWeapon() const {
