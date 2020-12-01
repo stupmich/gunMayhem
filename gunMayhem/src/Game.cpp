@@ -103,41 +103,49 @@ const bool Game::getWindowIsOpen() {
 }
 
 void Game::pollEvents() {
+    if (Keyboard::isKeyPressed(Keyboard::W))
+    {
+        if (this->player1.getIsOnGround() && !this->player1.isJumping1())
+        {
+            this->player1.setIsOnGround(false);
+            this->player1.setIsJumping(true);
+        }
+
+    }
+    if (Keyboard::isKeyPressed(Keyboard::S))
+    {
+        if (this->player1.getIsOnGround() && !this->player1.isJumping1())
+        {
+            this->player1.setIsOnGround(false);
+            this->player1.getRect().setPosition(this->player1.getRect().getPosition().x,this->player1.getRect().getPosition().y + 61);
+        }
+
+    }
+
     while (this->gameWindow->pollEvent(this->event)) {
         switch (this->event.type) {
             case Event::Closed:
                 this->gameWindow->close();
                 break;
+            case Event::KeyPressed:
+                if (event.key.code == Keyboard::Escape) {
+                    this->gameWindow->close();
+                } else if(event.key.code == Keyboard::A) {
+                    this->player1.setVelX(-10.f);
+                } else if(event.key.code == Keyboard::D) {
+                    this->player1.setVelX(10.f);
+                }
+                break;
+
             case Event::KeyReleased:
-                if (event.key.code == Keyboard::A) {
+                if(event.key.code == Keyboard::A) {
                     this->player1.setVelX(0.f);
-                } else if (event.key.code == Keyboard::D) {
+                } else if(event.key.code == Keyboard::D) {
                     this->player1.setVelX(0.f);
-                } else if (event.key.code == Keyboard::C) {
+                } else if(event.key.code == Keyboard::C) {
                     this->player1.shoot();
                 }
                 break;
-        }
-
-        if (Keyboard::isKeyPressed(Keyboard::W)) {
-            if (this->player1.getIsOnGround() && !this->player1.isJumping1()) {
-                this->player1.setIsOnGround(false);
-                this->player1.setIsJumping(true);
-            }
-        } else if (Keyboard::isKeyPressed(Keyboard::A)) {
-            this->player1.setVelX(-10.f);
-        } else if (Keyboard::isKeyPressed(Keyboard::D)) {
-            this->player1.setVelX(10.f);
-        }
-
-        else if (Keyboard::isKeyPressed(Keyboard::S))
-        {
-            if (this->player1.getIsOnGround() && !this->player1.isJumping1())
-            {
-                this->player1.setIsOnGround(false);
-                this->player1.getRect().setPosition(this->player1.getRect().getPosition().x,this->player1.getRect().getPosition().y + 10);
-            }
-
         }
     }
 }
@@ -154,14 +162,14 @@ void Game::gravitation() {
         this->player1.setVelY(10.f);
     }
     for (int i = 0; i < 4;i++) {
-        if (this->platforms[i].getRect().getGlobalBounds().intersects(this->player1.getRect().getGlobalBounds()) &&
-            this->platforms[i].getRect().getPosition().y >= this->player1.getRect().getPosition().y + 40) {
+        if ((this->platforms[i].getRect().getGlobalBounds().intersects(this->player1.getRect().getGlobalBounds())) ) {
             this->player1.setIsOnGround(true);
-            if (!this->player1.isJumping1())
-                this->player1.setVelY(0);
+            if (!this->player1.isJumping1() && this->player1.getIsOnGround())
+                this->player1.getRect().setPosition(this->player1.getRect().getPosition().x,this->platforms[i].getRect().getPosition().y - 50);
             break;
         } else {
             this->player1.setIsOnGround(false);
         }
+
     }
 }
