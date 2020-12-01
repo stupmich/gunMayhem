@@ -21,7 +21,7 @@ private:
     VideoMode videoMode;
     Player player1;
     Player player2;
-
+    int time = 0;
     bool pressed;
 
     sf::IpAddress ip = sf::IpAddress::getLocalAddress();

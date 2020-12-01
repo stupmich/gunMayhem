@@ -48,7 +48,17 @@ void Game::render() {
     this->gameWindow->draw(this->player1.getRect());
     this->gameWindow->draw(this->player2.getRect());
 
+
+
     for (auto &bullet : this->player1.getWeapon().getBullets()) // access by reference to avoid copying
+
+
+    for (int i = 0; i < 4;i++) {
+        this->gameWindow->draw(this->platforms[i].getRect());
+    }
+    this->gameWindow->draw(this->player.getRect());
+
+    for (auto &bullet : this->player.getWeapon().getBullets()) // access by reference to avoid copying
     {
         this->gameWindow->draw(bullet->getBullet());
     }
@@ -73,6 +83,20 @@ void Game::initVariables() {
 
     this->player1.initPlayer(Color::Blue);
     this->player2.initPlayer(Color::Green);
+    this->player.initPlayer();
+    Platform p1;
+    Platform p2;
+    Platform p3;
+    Platform p4;
+    p1.initPlatform(250,20,50,120);
+    p2.initPlatform(250,20,500,120);
+    p3.initPlatform(450,20,150,250);
+    p4.initPlatform(700,20,50,400);
+    this->platforms[0] = p1;
+    this->platforms[1] = p2;
+    this->platforms[2] = p3;
+    this->platforms[3] = p4;
+
 }
 
 void Game::initWindow() {
@@ -113,21 +137,40 @@ void Game::pollEvents() {
         } else if (Keyboard::isKeyPressed(Keyboard::D)) {
             this->player1.setVelX(10.f);
         }
+
+        else if (Keyboard::isKeyPressed(Keyboard::S))
+        {
+            if (this->player1.getIsOnGround() && !this->player.isJumping1())
+            {
+                this->player1.setIsOnGround(false);
+                this->player1.getRect().setPosition(this->player.getRect().getPosition().x,this->player.getRect().getPosition().y + 10);
+            }
+
+        }
     }
 }
 
 void Game::gravitation() {
-    if (this->player1.isJumping1()) {
+    if(this->player1.isJumping1()) {
         this->player1.setVelY(-10.f);
-    } else {
+        time++;
+        if (time == 15) {
+            time = 0;
+            this->player1.setIsJumping(false);
+        }
+    }else {
         this->player1.setVelY(10.f);
     }
-    if (this->player1.getRect().getPosition().y >= 400) {
-        this->player1.setIsOnGround(true);
-        this->player1.getRect().setPosition(this->player1.getRect().getPosition().x, 400);
-    }
-    if (this->player1.getRect().getPosition().y <= 250)
-    {
-        this->player1.setIsJumping(false);
+    for (int i = 0; i < 4;i++) {
+        if (this->platforms[i].getRect().getGlobalBounds().intersects(this->player.getRect().getGlobalBounds()) &&
+        this->platforms[i].getRect().getPosition().y >= this->player.getRect().getPosition().y + 40) {
+            this->player1.setIsOnGround(true);
+            if (!this->player1.isJumping1())
+                this->player1.setVelY(0);
+            break;
+        } else {
+            this->player1.setIsOnGround(false);
+        }
+
     }
 }
