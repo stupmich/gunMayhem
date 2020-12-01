@@ -128,25 +128,27 @@ void Game::pollEvents() {
                 }
                 break;
         }
-        if (Keyboard::isKeyPressed(Keyboard::W))
-        {
-            if (this->player1.getIsOnGround() && !this->player1.isJumping1())
-            {
+
+        if (Keyboard::isKeyPressed(Keyboard::W)) {
+            if (this->player1.getIsOnGround() && !this->player1.isJumping1()) {
                 this->player1.setIsOnGround(false);
                 this->player1.setIsJumping(true);
             }
-
+        } else if (Keyboard::isKeyPressed(Keyboard::A)) {
+            this->player1.setVelX(-10.f);
+        } else if (Keyboard::isKeyPressed(Keyboard::D)) {
+            this->player1.setVelX(10.f);
         }
-        if (Keyboard::isKeyPressed(Keyboard::S))
+
+        else if (Keyboard::isKeyPressed(Keyboard::S))
         {
             if (this->player1.getIsOnGround() && !this->player1.isJumping1())
             {
                 this->player1.setIsOnGround(false);
-                this->player1.getRect().setPosition(this->player1.getRect().getPosition().x,this->player1.getRect().getPosition().y + 61);
+                this->player1.getRect().setPosition(this->player1.getRect().getPosition().x,this->player1.getRect().getPosition().y + 10);
             }
 
         }
-
     }
 }
 
