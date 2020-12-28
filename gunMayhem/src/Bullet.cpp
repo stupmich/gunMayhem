@@ -12,6 +12,7 @@ Bullet::Bullet(bool right,float x,float y) {
 
 Bullet::~Bullet() {
     if (this->bullet.getPosition().x > 1000 || this->bullet.getPosition().x < -200){
+        std::printf("delete bullet");
         delete(this);
     }
 }
@@ -48,3 +49,18 @@ const RectangleShape &Bullet::getBullet() const {
 void Bullet::setBullet(const RectangleShape &bullet) {
     Bullet::bullet = bullet;
 }
+
+
+
+float Bullet::getBulletPositionX() {
+    return this->bullet.getPosition().x;
+}
+
+float Bullet::getBulletPositionY() {
+    return this->bullet.getPosition().y;
+}
+
+void Bullet::setBulletPosition(float x, float y) {
+    this->bullet.setPosition(x,y);
+}
+

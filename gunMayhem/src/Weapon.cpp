@@ -11,8 +11,14 @@ void Weapon::shoot(bool right,float x,float y) {
 }
 
 const std::vector<Bullet *> &Weapon::getBullets() const {
-    return bullets;
+    return this->bullets;
+
 }
+
+void Weapon::add(Bullet * bull) {
+    this->bullets.push_back(bull);
+}
+
 
 
 

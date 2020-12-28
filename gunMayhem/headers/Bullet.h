@@ -27,8 +27,11 @@ public:
     void move();
 
     float getBulletVel() const;
+    float getBulletPositionX();
+    float getBulletPositionY();
 
     void setBulletVel(float bulletVel);
+    void setBulletPosition(float x, float y);
 
     const RectangleShape &getBullet() const;
 

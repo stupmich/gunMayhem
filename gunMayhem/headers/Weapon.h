@@ -19,12 +19,11 @@
 
 class Weapon {
 private:
-
    std::vector<Bullet*> bullets;
 
 public:
     void shoot(bool right,float x,float y);
-
+    void add(Bullet* bull);
     const std::vector<Bullet *> &getBullets() const;
 
 };

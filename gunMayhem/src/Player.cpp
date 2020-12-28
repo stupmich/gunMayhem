@@ -51,9 +51,9 @@ void Player::setIsOnGround(bool isOnGround) {
 
 void Player::shoot() {
     if (this->lookingRight) {
-        weapon.shoot(this->lookingRight,this->rect.getPosition().x + this->rect.getGlobalBounds().width, this->rect.getPosition().y);
+        weapon.shoot(this->lookingRight,this->rect.getPosition().x + this->rect.getGlobalBounds().width, this->rect.getPosition().y + 10);
     } else {
-        weapon.shoot(this->lookingRight,this->rect.getPosition().x , this->rect.getPosition().y);
+        weapon.shoot(this->lookingRight,this->rect.getPosition().x + 1, this->rect.getPosition().y + 10);
     }
 }
 
@@ -69,5 +69,6 @@ Player::~Player() {
 const Weapon &Player::getWeapon() const {
     return weapon;
 }
+
 
 

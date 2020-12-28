@@ -36,10 +36,46 @@ void Game::update() {
         this->player2.getRect().setPosition(p2Position);
     }
 
-    for (auto &bullet : this->player1.getWeapon().getBullets()) // access by reference to avoid copying
-    {
-        bullet->move();
+
+    sf::Packet packet2;
+    sf::Packet packet3;
+    float* aX = new float[500];
+    float* aY = new float[500];
+    for (int i = 0; i < 500; ++i) {
+        aX[i] = 0;
+        aY[i] = 0;
     }
+
+    for (auto &bullet : this->player1.getWeapon().getBullets()) {
+        bullet->move();
+        packet2 << bullet->getBulletPositionX();
+        packet3 << bullet->getBulletPositionY();
+    }
+
+    this->socket.send(packet2);
+    this->socket.receive(packet2);
+    this->socket.send(packet3);
+    this->socket.receive(packet3);
+
+    for (int i = 0; i < this->player1.getWeapon().getBullets().size() ; i++) {
+        if (packet2 >> aX[i] && packet3 >> aY[i]) {
+            packet2 >> aX[i];
+            packet3 >> aY[i];
+        }
+    }
+
+    int i = 0;
+    for (auto &bullet : this->player1.getWeapon().getBullets()) {
+        if(aX[i] != 0 && aY[i] != 0) {
+            bullet->setBulletPosition(aX[i], aY[i]);
+            i++;
+        }
+    }
+
+    packet2.clear();
+    packet3.clear();
+    delete[] aX;
+    delete[] aY;
 }
 
 void Game::render() {
@@ -56,6 +92,12 @@ void Game::render() {
     {
         this->gameWindow->draw(bullet->getBullet());
     }
+
+    for (auto &bullet : this->player2.getWeapon().getBullets()) // access by reference to avoid copying
+    {
+        this->gameWindow->draw(bullet->getBullet());
+    }
+
     this->gameWindow->display();
 }
 
@@ -87,7 +129,7 @@ void Game::initVariables() {
     this->platforms[3] = p4;
 
 
-    this->player1.initPlayer(Color::Blue);
+    this->player1.initPlayer(Color::Red);
     this->player2.initPlayer(Color::Green);
 
 }

@@ -17,6 +17,9 @@ using namespace sf;
 
 class Game{
 private:
+    std::vector<Bullet*> bulletsGame;
+
+
     RenderWindow* gameWindow;
     Event event;
     VideoMode videoMode;
