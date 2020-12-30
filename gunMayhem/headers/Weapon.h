@@ -1,6 +1,3 @@
-//
-// Created by micha on 28. 11. 2020.
-//
 #pragma SPARK_NO_PREPROCESSOR
 #ifndef GUNMAYHEM_WEAPON_H
 #define GUNMAYHEM_WEAPON_H
@@ -19,7 +16,7 @@
 
 class Weapon {
 private:
-   std::vector<Bullet*> bullets;
+    std::vector<Bullet*> bullets;
 
 public:
     void shoot(bool right,float x,float y);

@@ -1,7 +1,3 @@
-//
-// Created by micha on 28. 11. 2020.
-//
-
 #ifndef GUNMAYHEM_BULLET_H
 #define GUNMAYHEM_BULLET_H
 
@@ -25,7 +21,7 @@ public:
     virtual ~Bullet();
     void initBullet(bool right,float x,float y);
     void move();
-
+    RectangleShape &getRect();
     float getBulletVel() const;
     float getBulletPositionX();
     float getBulletPositionY();

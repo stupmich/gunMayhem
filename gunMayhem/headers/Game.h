@@ -1,7 +1,3 @@
-//
-// Created by micha on 27. 11. 2020.
-//
-
 #ifndef GUNMAYHEM_GAME_H
 #define GUNMAYHEM_GAME_H
 
@@ -13,18 +9,23 @@
 #include <SFML/Audio.hpp>
 #include "Player.h"
 #include "Platform.h"
+#include "HealthBar.h"
+#include "LifeBar.h"
+
 using namespace sf;
 
 class Game{
 private:
     std::vector<Bullet*> bulletsGame;
-
-
     RenderWindow* gameWindow;
     Event event;
     VideoMode videoMode;
     Player player1;
     Player player2;
+    HealthBar healthBar1;
+    HealthBar healthBar2;
+    LifeBar lifeBar1[3];
+    LifeBar lifeBar2[3];
     int time = 0;
     Platform platforms[4];
 
@@ -44,8 +45,8 @@ public:
     void pollEvents();
     void render();
     void gravitation();
+    void hitboxes(std::vector<Bullet*> bullets, Player *player);
+    void gameplay(Player *player, HealthBar *healthBar);
 };
 
-
 #endif //GUNMAYHEM_GAME_H
-

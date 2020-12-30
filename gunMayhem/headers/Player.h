@@ -10,7 +10,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-
+#include <SFML/Network.hpp>
 #include <SFML/Audio.hpp>
 
 
@@ -26,10 +26,19 @@ private:
     bool lookingRight;
     bool isOnGround = false;
     Weapon weapon;
+    int HP;
+    int Life;
+
+
+
 
 
 public:
     Player();
+
+    int getLife() const;
+
+    void setLife(int life);
 
     virtual ~Player();
 
@@ -42,12 +51,19 @@ public:
     void setIsOnGround(bool isOnGround);
     void setIsJumping(bool isJumping);
 
+    float getVelY() const;
+    float getVelX() const;
+
+    bool isLookingRight() const;
 
     const Weapon &getWeapon() const;
-
-
+    void setHP(int hp);
+    int getHP();
     void initPlayer(Color c);
+    void moveRight();
+    void moveLeft();
     void move();
+    void jump();
     void shoot();
 };
 
