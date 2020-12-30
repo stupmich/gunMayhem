@@ -1,8 +1,3 @@
-
-//
-// Created by micha on 27. 11. 2020.
-//
-
 #include "Game.h"
 
 Game::Game() {
@@ -19,7 +14,11 @@ void Game::update() {
     this->gravitation();
 
     sf::Vector2f prevPosition, p2Position;
+    int prevHP1, hp1, prevHP2, hp2, prevLife1, prevLife2, life1, life2;
+    //pohyb***************************************************************************
     sf::Packet packet;
+
+
 
     prevPosition = player1.getRect().getPosition();
     this->player1.move();
@@ -35,8 +34,77 @@ void Game::update() {
     if (packet >> p2Position.x >> p2Position.y ) {
         this->player2.getRect().setPosition(p2Position);
     }
+    //pohyb***************************************************************************
+
+    //hpcka****************************************************************
+    sf::Packet packet4;
+
+    prevHP1 = player1.getHP();
+    prevHP2 = player2.getHP();
+    this->hitboxes(this->player1.getWeapon().getBullets(), &this->player2);
+    this->hitboxes(this->player2.getWeapon().getBullets(), &this->player1);
+
+    if (prevHP1 != player1.getHP()) {
+        packet4 << player1.getHP();
+
+    }
+    this->socket.send(packet4);
+    this->socket.receive(packet4);
+
+    if(packet4 >> hp1) {
+        this->player2.setHP(hp1);
+    }
+
+    if (prevHP2 != player2.getHP()) {
+        packet4 << player2.getHP();
+
+    }
+    this->socket.send(packet4);
+    this->socket.receive(packet4);
+
+    if(packet4 >> hp2) {
+        this->player1.setHP(hp2);
+    }
+
+    this->healthBar1.setSizeOfHB(this->player1.getHP());
+    this->healthBar2.setSizeOfHB(this->player2.getHP());
+    //hpcka****************************************************************
+
+    //zivoty**********************************************************************
+    sf::Packet packet5;
+    prevLife1 = this->player1.getLife();
+    prevLife2 = this->player2.getLife();
+
+    this->gameplay(&this->player1,&this->healthBar1);
+    this->gameplay(&this->player2,&this->healthBar2);
+
+    if (prevLife1 != player1.getLife()) {
+        packet5 << player1.getLife();
+
+    }
+    this->socket.send(packet5);
+    this->socket.receive(packet5);
+
+    if(packet5 >> life1) {
+        this->player2.setLife(life1);
+    }
+
+    if (prevLife2 != player2.getLife()) {
+        packet5 << player2.getLife();
+
+    }
+    this->socket.send(packet5);
+    this->socket.receive(packet5);
+
+    if(packet5 >> life2) {
+        this->player1.setLife(life2);
+    }
 
 
+
+    //zivoty**********************************************************************
+
+    //gulky***************************************************************************
     sf::Packet packet2;
     sf::Packet packet3;
     float* aX = new float[500];
@@ -71,23 +139,30 @@ void Game::update() {
             i++;
         }
     }
-
+    this->healthBar1.setSizeOfHB(this->player1.getHP());
+    this->healthBar2.setSizeOfHB(this->player2.getHP());
     packet2.clear();
     packet3.clear();
     delete[] aX;
     delete[] aY;
+    //gulky***************************************************************************
 }
 
 void Game::render() {
+
     this->gameWindow->clear();
+
 
     for (int i = 0; i < 4;i++) {
         this->gameWindow->draw(this->platforms[i].getRect());
     }
 
-    this->gameWindow->draw(this->player1.getRect());
-    this->gameWindow->draw(this->player2.getRect());
-
+    if(this->player1.getLife() > 0) {
+        this->gameWindow->draw(this->player1.getRect());
+    }
+    if(this->player2.getLife() > 0) {
+        this->gameWindow->draw(this->player2.getRect());
+    }
     for (auto &bullet : this->player1.getWeapon().getBullets()) // access by reference to avoid copying
     {
         this->gameWindow->draw(bullet->getBullet());
@@ -96,6 +171,21 @@ void Game::render() {
     for (auto &bullet : this->player2.getWeapon().getBullets()) // access by reference to avoid copying
     {
         this->gameWindow->draw(bullet->getBullet());
+    }
+
+    for (int i = 0; i < this->player1.getLife(); i++) {
+        this->gameWindow->draw(this->lifeBar1[i].getLifeBar());
+    }
+
+    for (int i = 0; i < this->player2.getLife(); i++) {
+        this->gameWindow->draw(this->lifeBar2[i].getLifeBar());
+    }
+
+    if(this->player1.getLife() > 0) {
+        this->gameWindow->draw(this->healthBar1.getHealthBar());
+    }
+    if(this->player2.getLife() > 0) {
+        this->gameWindow->draw(this->healthBar2.getHealthBar());
     }
 
     this->gameWindow->display();
@@ -128,7 +218,33 @@ void Game::initVariables() {
     this->platforms[2] = p3;
     this->platforms[3] = p4;
 
+    LifeBar l11;
+    LifeBar l12;
+    LifeBar l13;
 
+    LifeBar l21;
+    LifeBar l22;
+    LifeBar l23;
+
+    l11.initLifeBar(20,15);
+    l12.initLifeBar(60,15);
+    l13.initLifeBar(100,15);
+
+    l21.initLifeBar(690,15);
+    l22.initLifeBar(730,15);
+    l23.initLifeBar(770,15);
+
+
+    this->lifeBar1[0] = l11;
+    this->lifeBar1[1] = l12;
+    this->lifeBar1[2] = l13;
+
+    this->lifeBar2[0] = l21;
+    this->lifeBar2[1] = l22;
+    this->lifeBar2[2] = l23;
+
+    this->healthBar1.initHealthBar(20,60);
+    this->healthBar2.initHealthBar(700,60);
     this->player1.initPlayer(Color::Red);
     this->player2.initPlayer(Color::Green);
 
@@ -192,6 +308,28 @@ void Game::pollEvents() {
         }
     }
 }
+
+
+void Game::hitboxes(std::vector<Bullet*> bullets, Player *player) {
+    for (auto &bullet : bullets) {
+        if(player->getRect().getGlobalBounds().intersects(bullet->getRect().getGlobalBounds())) {
+            player->setHP((player->getHP() - 25));
+            bullet->setBulletPosition(2000,2000);
+        }
+    }
+
+}
+
+
+void Game::gameplay(Player *player, HealthBar *healthBar) {
+    if(player->getHP() <= 0 || player->getRect().getPosition().y > 1200) {
+        player->getRect().setPosition(100,-200);
+        player->setLife(player->getLife() - 1);
+        player->setHP(100);
+        healthBar->setSizeOfHB(100);
+    }
+}
+
 
 void Game::gravitation() {
     if(this->player1.isJumping1()) {

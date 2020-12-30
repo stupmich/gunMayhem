@@ -1,7 +1,3 @@
-//
-// Created by micha on 27. 11. 2020.
-//
-
 #include "Player.h"
 
 void Player::initPlayer(Color c) {
@@ -9,6 +5,8 @@ void Player::initPlayer(Color c) {
     this->rect.setPosition(100.f,-300.f);
     this->rect.setFillColor(c);
     this->lookingRight = true;
+    this->HP = 100;
+    this->Life = 3;
 }
 
 RectangleShape &Player::getRect()  {
@@ -30,6 +28,14 @@ void Player::move() {
     } else if (this->velX < 0){
         this->lookingRight = false;
     }
+}
+
+int Player::getHP() {
+    return HP;
+}
+
+void Player::setHP(int hp) {
+    Player::HP = hp;
 }
 
 bool Player::isJumping1()  {
@@ -70,5 +76,10 @@ const Weapon &Player::getWeapon() const {
     return weapon;
 }
 
+int Player::getLife() const {
+    return Life;
+}
 
-
+void Player::setLife(int life) {
+    Life = life;
+}

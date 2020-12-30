@@ -1,7 +1,3 @@
-//
-// Created by micha on 28. 11. 2020.
-//
-
 #include <Weapon.h>
 
 void Weapon::shoot(bool right,float x,float y) {
