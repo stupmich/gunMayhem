@@ -3,7 +3,10 @@ project(gunMayhem)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(gunMayhem src/main.cpp headers/Game.h src/Game.cpp headers/Player.h src/Player.cpp headers/Bullet.h src/Bullet.cpp headers/Weapon.h src/Weapon.cpp headers/Platform.h src/Platform.cpp)
+add_executable(gunMayhem src/main.cpp headers/Game.h
+        src/Game.cpp headers/Player.h src/Player.cpp
+        headers/Bullet.h src/Bullet.cpp headers/Weapon.h
+        src/Weapon.cpp headers/Platform.h src/Platform.cpp headers/HealthBar.h headers/LifeBar.h src/HealthBar.cpp src/LifeBar.cpp)
 
 include_directories(headers /usr/include c:/SFML/include)
 

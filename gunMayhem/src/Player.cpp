@@ -2,7 +2,7 @@
 
 void Player::initPlayer(Color c) {
     this->rect.setSize(Vector2f(30.f,50.f));
-    this->rect.setPosition(100.f,-300.f);
+    this->rect.setPosition(400.f,-500.f);
     this->rect.setFillColor(c);
     this->lookingRight = true;
     this->HP = 100;
@@ -82,4 +82,9 @@ int Player::getLife() const {
 
 void Player::setLife(int life) {
     Life = life;
+}
+
+void Player::setPosition(float parX, float parY) {
+    std::cout << parX << parY;
+    this->rect.setPosition(parX, parY);
 }

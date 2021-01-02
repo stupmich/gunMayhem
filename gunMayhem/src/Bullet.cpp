@@ -1,3 +1,9 @@
+//
+// Created by micha on 28. 11. 2020.
+//
+
+
+
 #include <Bullet.h>
 
 Bullet::Bullet(bool right,float x,float y) {
@@ -5,9 +11,7 @@ Bullet::Bullet(bool right,float x,float y) {
 }
 
 Bullet::~Bullet() {
-    if (this->bullet.getPosition().x > 1000 || this->bullet.getPosition().x < -200){
-        delete(this);
-    }
+    delete(this);
 }
 
 RectangleShape &Bullet::getRect()  {
@@ -17,7 +21,7 @@ RectangleShape &Bullet::getRect()  {
 void Bullet::initBullet(bool right,float x,float y) {
     bullet.setSize(Vector2f(10.f,5.f));
     bullet.setFillColor(Color::Blue);
-    if (right){
+   if (right){
         bullet.setPosition(x, y);
         this->bulletVel = 10.f;
     } else {
@@ -60,3 +64,4 @@ float Bullet::getBulletPositionY() {
 void Bullet::setBulletPosition(float x, float y) {
     this->bullet.setPosition(x,y);
 }
+

@@ -15,6 +15,12 @@ void Weapon::add(Bullet * bull) {
     this->bullets.push_back(bull);
 }
 
+Weapon::~Weapon() {
+    for (auto &bullet : this->bullets) {
+        delete bullet;
+    }
+}
+
 
 
 

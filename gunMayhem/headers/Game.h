@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "Platform.h"
 #include "HealthBar.h"
+
 #include "LifeBar.h"
 
 using namespace sf;

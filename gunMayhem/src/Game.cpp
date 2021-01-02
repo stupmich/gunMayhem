@@ -6,7 +6,8 @@ Game::Game() {
 }
 
 Game::~Game() {
-    this->gameWindow = nullptr;
+
+    delete this->gameWindow;
 }
 
 void Game::update() {
@@ -17,8 +18,6 @@ void Game::update() {
     int prevHP1, hp1, prevHP2, hp2, prevLife1, prevLife2, life1, life2;
     //pohyb***************************************************************************
     sf::Packet packet;
-
-
 
     prevPosition = player1.getRect().getPosition();
     this->player1.move();
@@ -323,7 +322,7 @@ void Game::hitboxes(std::vector<Bullet*> bullets, Player *player) {
 
 void Game::gameplay(Player *player, HealthBar *healthBar) {
     if(player->getHP() <= 0 || player->getRect().getPosition().y > 1200) {
-        player->getRect().setPosition(100,-200);
+        player->getRect().setPosition(400,-200);
         player->setLife(player->getLife() - 1);
         player->setHP(100);
         healthBar->setSizeOfHB(100);

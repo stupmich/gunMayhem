@@ -65,6 +65,7 @@ public:
     void move();
     void jump();
     void shoot();
+    void setPosition(float parX, float parY);
 };
 
 

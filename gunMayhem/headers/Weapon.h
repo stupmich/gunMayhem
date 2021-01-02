@@ -23,5 +23,7 @@ public:
     void add(Bullet* bull);
     const std::vector<Bullet *> &getBullets() const;
 
+    virtual ~Weapon();
+
 };
 #endif //GUNMAYHEM_WEAPON_H
