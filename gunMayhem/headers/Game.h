@@ -10,7 +10,6 @@
 #include "Player.h"
 #include "Platform.h"
 #include "HealthBar.h"
-
 #include "LifeBar.h"
 
 using namespace sf;
@@ -29,7 +28,7 @@ private:
     LifeBar lifeBar2[3];
     int time = 0;
     Platform platforms[4];
-
+    int  magSize;
     sf::IpAddress ip = sf::IpAddress::getLocalAddress();
     sf::TcpSocket socket;
     char connectionType;

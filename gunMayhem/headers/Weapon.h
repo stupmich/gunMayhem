@@ -20,10 +20,9 @@ private:
 
 public:
     void shoot(bool right,float x,float y);
-    void add(Bullet* bull);
+    void add(Bullet* bull) ;
     const std::vector<Bullet *> &getBullets() const;
 
     virtual ~Weapon();
-
 };
 #endif //GUNMAYHEM_WEAPON_H

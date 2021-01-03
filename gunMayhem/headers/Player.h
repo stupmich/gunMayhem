@@ -55,7 +55,7 @@ public:
     float getVelX() const;
 
     bool isLookingRight() const;
-
+    void setLookingRight(bool look);
     const Weapon &getWeapon() const;
     void setHP(int hp);
     int getHP();
