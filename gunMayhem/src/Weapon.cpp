@@ -22,5 +22,3 @@ Weapon::~Weapon() {
 }
 
 
-
-

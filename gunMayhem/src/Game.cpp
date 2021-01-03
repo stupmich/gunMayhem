@@ -1,3 +1,4 @@
+
 #include "Game.h"
 
 Game::Game() {
@@ -31,6 +32,11 @@ void Game::update() {
     this->socket.receive(packet);
 
     if (packet >> p2Position.x >> p2Position.y ) {
+        if (this->player2.getRect().getPosition().x < p2Position.x) {
+            this->player2.setLookingRight(true);
+        } else {
+            this->player2.setLookingRight(false);
+        }
         this->player2.getRect().setPosition(p2Position);
     }
     //pohyb***************************************************************************
@@ -103,15 +109,51 @@ void Game::update() {
 
     //zivoty**********************************************************************
 
+    //***********************************************************
+
+    sf:Packet packet6;
+
+    int magSize2;
+    int ij = 0;
+    for(auto &bullet: this->player1.getWeapon().getBullets()) {
+        ij++;
+    }
+
+
+    if(ij != this->magSize) {
+        packet6 << ij - this->magSize;
+        this->magSize = ij;
+    } else {
+        packet6 << 0;
+    }
+
+
+    this->socket.send(packet6);
+    this->socket.receive(packet6);
+
+    if (packet6 >> magSize2) {
+        for (int i = 0; i < magSize2; i++) {
+                this->player2.shoot();
+        }
+    }
+    magSize2 = 0;
+
+
+
+
     //gulky***************************************************************************
     sf::Packet packet2;
     sf::Packet packet3;
+
+
     float* aX = new float[500];
     float* aY = new float[500];
+
     for (int i = 0; i < 500; ++i) {
         aX[i] = 0;
         aY[i] = 0;
     }
+
 
     for (auto &bullet : this->player1.getWeapon().getBullets()) {
         bullet->move();
@@ -119,12 +161,17 @@ void Game::update() {
         packet3 << bullet->getBulletPositionY();
     }
 
+
+
     this->socket.send(packet2);
     this->socket.receive(packet2);
     this->socket.send(packet3);
     this->socket.receive(packet3);
 
-    for (int i = 0; i < this->player1.getWeapon().getBullets().size() ; i++) {
+
+
+
+    for (int i = 0; i < this->player2.getWeapon().getBullets().size() ; i++) {
         if (packet2 >> aX[i] && packet3 >> aY[i]) {
             packet2 >> aX[i];
             packet3 >> aY[i];
@@ -132,19 +179,69 @@ void Game::update() {
     }
 
     int i = 0;
+    for (auto &bullet : this->player2.getWeapon().getBullets()) {
+        //if(aX[i] != 0 && aY[i] != 0) {
+            bullet->setBulletPosition(aX[i], aY[i]);
+            i++;
+        //}
+    }
+
+    /*packet2.clear();
+    packet3.clear();
+
+    for (int i = 0; i < 500; ++i) {
+        aX[i] = 0;
+        aY[i] = 0;
+    }
+
+
+
+    for (auto &bullet : this->player2.getWeapon().getBullets()) {
+        bullet->move();
+        packet2 << bullet->getBulletPositionX();
+        packet3 << bullet->getBulletPositionY();
+    }
+
+
+
+    this->socket.send(packet2);
+    this->socket.receive(packet2);
+    this->socket.send(packet3);
+    this->socket.receive(packet3);
+
+
+
+
+    for (int i = 0; i < this->player2.getWeapon().getBullets().size() ; i++) {
+        if (packet2 >> aX[i] && packet3 >> aY[i]) {
+            packet2 >> aX[i];
+            packet3 >> aY[i];
+        }
+    }
+
+    i = 0;
     for (auto &bullet : this->player1.getWeapon().getBullets()) {
         if(aX[i] != 0 && aY[i] != 0) {
+            //std::cout << "setuje" << std::endl;
             bullet->setBulletPosition(aX[i], aY[i]);
             i++;
         }
-    }
-    this->healthBar1.setSizeOfHB(this->player1.getHP());
-    this->healthBar2.setSizeOfHB(this->player2.getHP());
+    }*/
+
+
+
     packet2.clear();
     packet3.clear();
+
     delete[] aX;
     delete[] aY;
     //gulky***************************************************************************
+
+
+
+    this->healthBar1.setSizeOfHB(this->player1.getHP());
+    this->healthBar2.setSizeOfHB(this->player2.getHP());
+
 }
 
 void Game::render() {
@@ -192,7 +289,7 @@ void Game::render() {
 
 void Game::initVariables() {
     this->gameWindow = nullptr;
-
+    this->magSize = 0;
     std::cout << " (s) for server, (c) for client" << std::endl;
     std::cin >> this->connectionType;
 

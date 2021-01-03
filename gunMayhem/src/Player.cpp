@@ -2,7 +2,7 @@
 
 void Player::initPlayer(Color c) {
     this->rect.setSize(Vector2f(30.f,50.f));
-    this->rect.setPosition(400.f,-500.f);
+    this->rect.setPosition(100.f,-300.f);
     this->rect.setFillColor(c);
     this->lookingRight = true;
     this->HP = 100;
@@ -28,6 +28,14 @@ void Player::move() {
     } else if (this->velX < 0){
         this->lookingRight = false;
     }
+}
+
+bool Player::isLookingRight() const{
+    return lookingRight;
+}
+
+void Player::setLookingRight(bool look) {
+    lookingRight = look;
 }
 
 int Player::getHP() {
