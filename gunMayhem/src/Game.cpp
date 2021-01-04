@@ -105,11 +105,9 @@ void Game::update() {
         this->player1.setLife(life2);
     }
 
-
-
     //zivoty**********************************************************************
 
-    //***********************************************************
+    //pocet guliek***********************************************************
 
     sf:Packet packet6;
 
@@ -119,14 +117,12 @@ void Game::update() {
         ij++;
     }
 
-
     if(ij != this->magSize) {
         packet6 << ij - this->magSize;
         this->magSize = ij;
     } else {
         packet6 << 0;
     }
-
 
     this->socket.send(packet6);
     this->socket.receive(packet6);
@@ -138,13 +134,9 @@ void Game::update() {
     }
     magSize2 = 0;
 
-
-
-
     //gulky***************************************************************************
     sf::Packet packet2;
     sf::Packet packet3;
-
 
     float* aX = new float[500];
     float* aY = new float[500];
@@ -154,81 +146,30 @@ void Game::update() {
         aY[i] = 0;
     }
 
-
     for (auto &bullet : this->player1.getWeapon().getBullets()) {
         bullet->move();
         packet2 << bullet->getBulletPositionX();
         packet3 << bullet->getBulletPositionY();
     }
 
-
-
     this->socket.send(packet2);
     this->socket.receive(packet2);
     this->socket.send(packet3);
     this->socket.receive(packet3);
 
-
-
-
     for (int i = 0; i < this->player2.getWeapon().getBullets().size() ; i++) {
         if (packet2 >> aX[i] && packet3 >> aY[i]) {
-            packet2 >> aX[i];
-            packet3 >> aY[i];
+            //packet2 >> aX[i];
+            //packet3 >> aY[i];
         }
     }
 
     int i = 0;
     for (auto &bullet : this->player2.getWeapon().getBullets()) {
-        //if(aX[i] != 0 && aY[i] != 0) {
-            bullet->setBulletPosition(aX[i], aY[i]);
-            i++;
-        //}
+        bullet->setBulletPosition(aX[i], aY[i]);
+        i++;
+
     }
-
-    /*packet2.clear();
-    packet3.clear();
-
-    for (int i = 0; i < 500; ++i) {
-        aX[i] = 0;
-        aY[i] = 0;
-    }
-
-
-
-    for (auto &bullet : this->player2.getWeapon().getBullets()) {
-        bullet->move();
-        packet2 << bullet->getBulletPositionX();
-        packet3 << bullet->getBulletPositionY();
-    }
-
-
-
-    this->socket.send(packet2);
-    this->socket.receive(packet2);
-    this->socket.send(packet3);
-    this->socket.receive(packet3);
-
-
-
-
-    for (int i = 0; i < this->player2.getWeapon().getBullets().size() ; i++) {
-        if (packet2 >> aX[i] && packet3 >> aY[i]) {
-            packet2 >> aX[i];
-            packet3 >> aY[i];
-        }
-    }
-
-    i = 0;
-    for (auto &bullet : this->player1.getWeapon().getBullets()) {
-        if(aX[i] != 0 && aY[i] != 0) {
-            //std::cout << "setuje" << std::endl;
-            bullet->setBulletPosition(aX[i], aY[i]);
-            i++;
-        }
-    }*/
-
-
 
     packet2.clear();
     packet3.clear();
@@ -237,7 +178,8 @@ void Game::update() {
     delete[] aY;
     //gulky***************************************************************************
 
-
+    this->bulletRemove(this->player2.getWeapon().getBullets());
+    this->bulletRemove(this->player1.getWeapon().getBullets());
 
     this->healthBar1.setSizeOfHB(this->player1.getHP());
     this->healthBar2.setSizeOfHB(this->player2.getHP());
@@ -448,5 +390,15 @@ void Game::gravitation() {
             this->player1.setIsOnGround(false);
         }
 
+    }
+}
+
+void Game::bulletRemove(std::vector<Bullet*> bullets) {
+    if(!bullets.empty()) {
+        for(unsigned int i = 0; i < bullets.size() ; i ++) {
+            if (abs(bullets[i]->getBulletPositionX() > 1200)) {
+                bullets.erase(bullets.begin() + (i++));
+            }
+        }
     }
 }
