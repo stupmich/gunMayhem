@@ -45,6 +45,7 @@ public:
     void pollEvents();
     void render();
     void gravitation();
+    void bulletRemove(std::vector<Bullet*> bullets);
     void hitboxes(std::vector<Bullet*> bullets, Player *player);
     void gameplay(Player *player, HealthBar *healthBar);
 };
