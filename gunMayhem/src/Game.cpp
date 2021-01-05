@@ -11,7 +11,10 @@ Game::~Game() {
     delete this->gameWindow;
 }
 
-void Game::update() {
+void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update) {
+    //sf::Context context;
+    std::unique_lock<std::mutex> lock(*mut);
+    while (*isUpdated) update->wait(lock);
     this->pollEvents();
     this->gravitation();
 
@@ -184,13 +187,18 @@ void Game::update() {
     this->healthBar1.setSizeOfHB(this->player1.getHP());
     this->healthBar2.setSizeOfHB(this->player2.getHP());
 
+
+    (*isUpdated) = true;
+    render->notify_one();
 }
 
-void Game::render() {
+void Game::render(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update) {
+    //sf::Context context;
+    std::unique_lock<std::mutex> lock(* mut);
+    while (!(*isUpdated)) render->wait(lock);
+
 
     this->gameWindow->clear();
-
-
     for (int i = 0; i < 4;i++) {
         this->gameWindow->draw(this->platforms[i].getRect());
     }
@@ -227,9 +235,13 @@ void Game::render() {
     }
 
     this->gameWindow->display();
+
+    (*isUpdated) = false;
+    update->notify_one();
 }
 
 void Game::initVariables() {
+    sf::Context context;
     this->gameWindow = nullptr;
     this->magSize = 0;
     std::cout << " (s) for server, (c) for client" << std::endl;
@@ -289,6 +301,7 @@ void Game::initVariables() {
 }
 
 void Game::initWindow() {
+    sf::Context context;
     this->videoMode.height = 600;
     this->videoMode.width = 800;
     this->gameWindow = new RenderWindow(this->videoMode, "GunMayhem", sf::Style::Titlebar | sf::Style::Close);

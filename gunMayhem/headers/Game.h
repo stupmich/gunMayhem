@@ -12,6 +12,10 @@
 #include "HealthBar.h"
 #include "LifeBar.h"
 
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
 using namespace sf;
 
 class Game{
@@ -33,17 +37,19 @@ private:
     sf::TcpSocket socket;
     char connectionType;
 
+
     void initVariables();
     void initWindow();
 public:
+
     Game();
     virtual ~Game();
 
     const bool getWindowIsOpen();
 
-    void update();
+    void update(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update);
     void pollEvents();
-    void render();
+    void render(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update);
     void gravitation();
     void bulletRemove(std::vector<Bullet*> bullets);
     void hitboxes(std::vector<Bullet*> bullets, Player *player);
