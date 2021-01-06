@@ -3,23 +3,55 @@
 #include <thread>
 
 
+Game game;
+sf::Context context;
+void render(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update, RenderWindow *window) {
+
+    for(int i = 0; i < 10000 ; i++) {
+        window->setActive(true);
+        std::unique_lock<std::mutex> lock(* mut);
+        while (!(*isUpdated)) render->wait(lock);
+        game.render();
+        //std::cout << "thread render " << std::endl;
+        (*isUpdated) = false;
+        update->notify_one();
+    }
+
+}
+
+
+void update(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update) {
+    for(int i = 0; i < 10000 ; i++) {
+        std::unique_lock<std::mutex> lock(*mut);
+        while (*isUpdated) update->wait(lock);
+        game.update();
+        //std::cout << "thread update " << std::endl;
+        (*isUpdated) = true;
+        render->notify_one();
+    }
+}
+
+
 
 int main() {
-
-    Game game;
-    bool isUpdated = true;
     std::mutex mut;
     std::condition_variable rend, upd;
+    bool isUpdated = false;
+
+
+    //game.render(&isUpdated, &mut,&rend, &upd);
+
 
     game.getGameWindow()->setActive(false);
 
-    std::thread t1(&Game::render,&game ,&isUpdated, &mut,&rend, &upd);
-    //std::thread t2(&Game::update,&game ,&isUpdated, &mut,&rend, &upd);
+    //std::thread t2(update,&isUpdated, &mut,&rend, &upd);
 
-    game.update(&isUpdated, &mut,&rend, &upd);
+    std::thread t1(render,&isUpdated, &mut,&rend, &upd, game.getGameWindow());
 
-    t1.join();
+    update(&isUpdated, &mut,&rend, &upd);
     //t2.join();
+    t1.join();
+
 
     return 0;
 }

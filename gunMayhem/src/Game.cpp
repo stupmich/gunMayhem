@@ -1,5 +1,5 @@
-
 #include "Game.h"
+#include <chrono>
 
 Game::Game() {
     this->initVariables();
@@ -10,17 +10,13 @@ Game::~Game() {
     delete this->gameWindow;
 }
 
-void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update) {
-
-    while (this->getWindowIsOpen()) {
-
-
-        std::unique_lock<std::mutex> lock(*mut);
-
-        while (*isUpdated) update->wait(lock);
-
+void Game::update() {
+    //sf::Context context;
+    //while(this->gameWindow->isOpen()) {
         this->pollEvents();
         this->gravitation();
+
+
 
         sf::Vector2f prevPosition, p2Position;
         int prevHP1, hp1, prevHP2, hp2, prevLife1, prevLife2, life1, life2;
@@ -30,15 +26,15 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         prevPosition = player1.getRect().getPosition();
         this->player1.move();
         this->player2.move();
-        std::cout<< "move" ;
+
         if (prevPosition != player1.getRect().getPosition()) {
-            packet << player1.getRect().getPosition().x <<  player1.getRect().getPosition().y;
+            packet << player1.getRect().getPosition().x << player1.getRect().getPosition().y;
             this->socket.send(packet);
         }
 
         this->socket.receive(packet);
 
-        if (packet >> p2Position.x >> p2Position.y ) {
+        if (packet >> p2Position.x >> p2Position.y) {
             if (this->player2.getRect().getPosition().x < p2Position.x) {
                 this->player2.setLookingRight(true);
             } else {
@@ -63,7 +59,7 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         this->socket.send(packet4);
         this->socket.receive(packet4);
 
-        if(packet4 >> hp1) {
+        if (packet4 >> hp1) {
             this->player2.setHP(hp1);
         }
 
@@ -74,7 +70,7 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         this->socket.send(packet4);
         this->socket.receive(packet4);
 
-        if(packet4 >> hp2) {
+        if (packet4 >> hp2) {
             this->player1.setHP(hp2);
         }
 
@@ -87,8 +83,8 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         prevLife1 = this->player1.getLife();
         prevLife2 = this->player2.getLife();
 
-        this->gameplay(&this->player1,&this->healthBar1);
-        this->gameplay(&this->player2,&this->healthBar2);
+        this->gameplay(&this->player1, &this->healthBar1);
+        this->gameplay(&this->player2, &this->healthBar2);
 
         if (prevLife1 != player1.getLife()) {
             packet5 << player1.getLife();
@@ -97,7 +93,7 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         this->socket.send(packet5);
         this->socket.receive(packet5);
 
-        if(packet5 >> life1) {
+        if (packet5 >> life1) {
             this->player2.setLife(life1);
         }
 
@@ -108,7 +104,7 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         this->socket.send(packet5);
         this->socket.receive(packet5);
 
-        if(packet5 >> life2) {
+        if (packet5 >> life2) {
             this->player1.setLife(life2);
         }
 
@@ -116,15 +112,16 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
 
         //pocet guliek***********************************************************
 
-        sf:Packet packet6;
+        sf:
+        Packet packet6;
 
         int magSize2;
         int ij = 0;
-        for(auto &bullet: this->player1.getWeapon().getBullets()) {
+        for (auto &bullet: this->player1.getWeapon().getBullets()) {
             ij++;
         }
 
-        if(ij != this->magSize) {
+        if (ij != this->magSize) {
             packet6 << ij - this->magSize;
             this->magSize = ij;
         } else {
@@ -145,8 +142,8 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         sf::Packet packet2;
         sf::Packet packet3;
 
-        float* aX = new float[500];
-        float* aY = new float[500];
+        float *aX = new float[500];
+        float *aY = new float[500];
 
         for (int i = 0; i < 500; ++i) {
             aX[i] = 0;
@@ -164,7 +161,7 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         this->socket.send(packet3);
         this->socket.receive(packet3);
 
-        for (int i = 0; i < this->player2.getWeapon().getBullets().size() ; i++) {
+        for (int i = 0; i < this->player2.getWeapon().getBullets().size(); i++) {
             if (packet2 >> aX[i] && packet3 >> aY[i]) {
                 //packet2 >> aX[i];
                 //packet3 >> aY[i];
@@ -191,21 +188,15 @@ void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * r
         this->healthBar1.setSizeOfHB(this->player1.getHP());
         this->healthBar2.setSizeOfHB(this->player2.getHP());
 
-        (*isUpdated) = true;
 
-        render->notify_one();
 
-    }
-
+    //}
 }
 
-void Game::render(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update) {
-    this->gameWindow->setActive(true);
-    while (this->getWindowIsOpen()) {
+void Game::render() {
+    //while(this->gameWindow->isOpen()) {
 
-        std::unique_lock<std::mutex> lock(* mut);
 
-        while (!(*isUpdated)) render->wait(lock);
 
         this->gameWindow->clear();
         for (int i = 0; i < 4;i++) {
@@ -245,12 +236,8 @@ void Game::render(bool * isUpdated, std::mutex *mut, std::condition_variable * r
 
         this->gameWindow->display();
 
-        (*isUpdated) = false;
-        update->notify_one();
 
-    }
-    this->gameWindow->setActive(false);
-
+    //}
 }
 
 void Game::initVariables() {
@@ -309,16 +296,17 @@ void Game::initVariables() {
     this->healthBar2.initHealthBar(700,60);
     this->player1.initPlayer(Color::Red);
     this->player2.initPlayer(Color::Green);
-
+    this->ready = true;
 
 }
 
 void Game::initWindow() {
-
+    sf::Context context;
     this->videoMode.height = 600;
     this->videoMode.width = 800;
     this->gameWindow = new RenderWindow(this->videoMode, "GunMayhem", sf::Style::Titlebar | sf::Style::Close);
     this->gameWindow->setFramerateLimit(60);
+    this->gameWindow->setVerticalSyncEnabled(true);
 
 }
 
@@ -327,10 +315,7 @@ const bool Game::getWindowIsOpen() {
 }
 
 void Game::pollEvents() {
-
-
     while (this->gameWindow->pollEvent(this->event)) {
-        this->gameWindow->setActive(true);
         switch (this->event.type) {
             case Event::Closed:
                 this->gameWindow->close();
@@ -374,40 +359,32 @@ void Game::pollEvents() {
             }
 
         }
-        this->gameWindow->setActive(false);
     }
-
 }
 
 
 void Game::hitboxes(std::vector<Bullet*> bullets, Player *player) {
-
-    this->gameWindow->setActive(true);
     for (auto &bullet : bullets) {
         if(player->getRect().getGlobalBounds().intersects(bullet->getRect().getGlobalBounds())) {
             player->setHP((player->getHP() - 25));
             bullet->setBulletPosition(2000,2000);
         }
     }
-    this->gameWindow->setActive(false);
+
 }
 
 
 void Game::gameplay(Player *player, HealthBar *healthBar) {
-    this->gameWindow->setActive(true);
     if(player->getHP() <= 0 || player->getRect().getPosition().y > 1200) {
         player->getRect().setPosition(400,-200);
         player->setLife(player->getLife() - 1);
         player->setHP(100);
         healthBar->setSizeOfHB(100);
     }
-    this->gameWindow->setActive(false);
 }
 
 
 void Game::gravitation() {
-
-    this->gameWindow->setActive(true);
     if(this->player1.isJumping1()) {
         this->player1.setVelY(-10.f);
         time++;
@@ -420,16 +397,17 @@ void Game::gravitation() {
     }
     for (int i = 0; i < 4;i++) {
         if ((this->platforms[i].getRect().getGlobalBounds().intersects(this->player1.getRect().getGlobalBounds())) ) {
+
             this->player1.setIsOnGround(true);
             if (!this->player1.isJumping1() && this->player1.getIsOnGround())
                 this->player1.getRect().setPosition(this->player1.getRect().getPosition().x,this->platforms[i].getRect().getPosition().y - 50);
+
             break;
         } else {
             this->player1.setIsOnGround(false);
         }
 
     }
-    this->gameWindow->setActive(false);
 }
 
 void Game::bulletRemove(std::vector<Bullet*> bullets) {
@@ -445,3 +423,6 @@ void Game::bulletRemove(std::vector<Bullet*> bullets) {
 RenderWindow *Game::getGameWindow() const {
     return gameWindow;
 }
+
+
+
