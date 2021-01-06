@@ -22,6 +22,10 @@ class Game{
 private:
     std::vector<Bullet*> bulletsGame;
     RenderWindow* gameWindow;
+public:
+    RenderWindow *getGameWindow() const;
+
+private:
     Event event;
     VideoMode videoMode;
     Player player1;
@@ -34,9 +38,13 @@ private:
     Platform platforms[4];
     int  magSize;
     sf::IpAddress ip = sf::IpAddress::getLocalAddress();
+    bool ready = false;
+    bool ready2 = false;
     sf::TcpSocket socket;
     char connectionType;
 
+
+private:
 
     void initVariables();
     void initWindow();
@@ -45,13 +53,10 @@ public:
     Game();
     virtual ~Game();
 
-    RenderWindow *getGameWindow() const;
-
     const bool getWindowIsOpen();
-
-    void update(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update);
+    void update();
     void pollEvents();
-    void render(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update);
+    void render();
     void gravitation();
     void bulletRemove(std::vector<Bullet*> bullets);
     void hitboxes(std::vector<Bullet*> bullets, Player *player);
