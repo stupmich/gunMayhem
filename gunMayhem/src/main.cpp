@@ -7,7 +7,7 @@ Game game;
 sf::Context context;
 void render(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update, RenderWindow *window) {
 
-    for(int i = 0; i < 10000 ; i++) {
+    while(game.getWindowIsOpen()) {
         window->setActive(true);
         std::unique_lock<std::mutex> lock(* mut);
         while (!(*isUpdated)) render->wait(lock);
@@ -21,7 +21,7 @@ void render(bool * isUpdated, std::mutex *mut, std::condition_variable * render,
 
 
 void update(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update) {
-    for(int i = 0; i < 10000 ; i++) {
+    while(game.getWindowIsOpen()) {
         std::unique_lock<std::mutex> lock(*mut);
         while (*isUpdated) update->wait(lock);
         game.update();
