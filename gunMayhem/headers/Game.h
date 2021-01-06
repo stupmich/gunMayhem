@@ -45,6 +45,8 @@ public:
     Game();
     virtual ~Game();
 
+    RenderWindow *getGameWindow() const;
+
     const bool getWindowIsOpen();
 
     void update(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update);

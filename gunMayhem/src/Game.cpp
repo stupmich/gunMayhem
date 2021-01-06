@@ -7,241 +7,253 @@ Game::Game() {
 }
 
 Game::~Game() {
-
     delete this->gameWindow;
 }
 
 void Game::update(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update) {
-    //sf::Context context;
-    std::unique_lock<std::mutex> lock(*mut);
-    while (*isUpdated) update->wait(lock);
-    this->pollEvents();
-    this->gravitation();
 
-    sf::Vector2f prevPosition, p2Position;
-    int prevHP1, hp1, prevHP2, hp2, prevLife1, prevLife2, life1, life2;
-    //pohyb***************************************************************************
-    sf::Packet packet;
+    while (this->getWindowIsOpen()) {
 
-    prevPosition = player1.getRect().getPosition();
-    this->player1.move();
-    this->player2.move();
 
-    if (prevPosition != player1.getRect().getPosition()) {
-        packet << player1.getRect().getPosition().x <<  player1.getRect().getPosition().y;
-        this->socket.send(packet);
-    }
+        std::unique_lock<std::mutex> lock(*mut);
 
-    this->socket.receive(packet);
+        while (*isUpdated) update->wait(lock);
 
-    if (packet >> p2Position.x >> p2Position.y ) {
-        if (this->player2.getRect().getPosition().x < p2Position.x) {
-            this->player2.setLookingRight(true);
+        this->pollEvents();
+        this->gravitation();
+
+        sf::Vector2f prevPosition, p2Position;
+        int prevHP1, hp1, prevHP2, hp2, prevLife1, prevLife2, life1, life2;
+        //pohyb***************************************************************************
+        sf::Packet packet;
+
+        prevPosition = player1.getRect().getPosition();
+        this->player1.move();
+        this->player2.move();
+        std::cout<< "move" ;
+        if (prevPosition != player1.getRect().getPosition()) {
+            packet << player1.getRect().getPosition().x <<  player1.getRect().getPosition().y;
+            this->socket.send(packet);
+        }
+
+        this->socket.receive(packet);
+
+        if (packet >> p2Position.x >> p2Position.y ) {
+            if (this->player2.getRect().getPosition().x < p2Position.x) {
+                this->player2.setLookingRight(true);
+            } else {
+                this->player2.setLookingRight(false);
+            }
+            this->player2.getRect().setPosition(p2Position);
+        }
+        //pohyb***************************************************************************
+
+        //hpcka****************************************************************
+        sf::Packet packet4;
+
+        prevHP1 = player1.getHP();
+        prevHP2 = player2.getHP();
+        this->hitboxes(this->player1.getWeapon().getBullets(), &this->player2);
+        this->hitboxes(this->player2.getWeapon().getBullets(), &this->player1);
+
+        if (prevHP1 != player1.getHP()) {
+            packet4 << player1.getHP();
+
+        }
+        this->socket.send(packet4);
+        this->socket.receive(packet4);
+
+        if(packet4 >> hp1) {
+            this->player2.setHP(hp1);
+        }
+
+        if (prevHP2 != player2.getHP()) {
+            packet4 << player2.getHP();
+
+        }
+        this->socket.send(packet4);
+        this->socket.receive(packet4);
+
+        if(packet4 >> hp2) {
+            this->player1.setHP(hp2);
+        }
+
+        this->healthBar1.setSizeOfHB(this->player1.getHP());
+        this->healthBar2.setSizeOfHB(this->player2.getHP());
+        //hpcka****************************************************************
+
+        //zivoty**********************************************************************
+        sf::Packet packet5;
+        prevLife1 = this->player1.getLife();
+        prevLife2 = this->player2.getLife();
+
+        this->gameplay(&this->player1,&this->healthBar1);
+        this->gameplay(&this->player2,&this->healthBar2);
+
+        if (prevLife1 != player1.getLife()) {
+            packet5 << player1.getLife();
+
+        }
+        this->socket.send(packet5);
+        this->socket.receive(packet5);
+
+        if(packet5 >> life1) {
+            this->player2.setLife(life1);
+        }
+
+        if (prevLife2 != player2.getLife()) {
+            packet5 << player2.getLife();
+
+        }
+        this->socket.send(packet5);
+        this->socket.receive(packet5);
+
+        if(packet5 >> life2) {
+            this->player1.setLife(life2);
+        }
+
+        //zivoty**********************************************************************
+
+        //pocet guliek***********************************************************
+
+        sf:Packet packet6;
+
+        int magSize2;
+        int ij = 0;
+        for(auto &bullet: this->player1.getWeapon().getBullets()) {
+            ij++;
+        }
+
+        if(ij != this->magSize) {
+            packet6 << ij - this->magSize;
+            this->magSize = ij;
         } else {
-            this->player2.setLookingRight(false);
+            packet6 << 0;
         }
-        this->player2.getRect().setPosition(p2Position);
-    }
-    //pohyb***************************************************************************
 
-    //hpcka****************************************************************
-    sf::Packet packet4;
+        this->socket.send(packet6);
+        this->socket.receive(packet6);
 
-    prevHP1 = player1.getHP();
-    prevHP2 = player2.getHP();
-    this->hitboxes(this->player1.getWeapon().getBullets(), &this->player2);
-    this->hitboxes(this->player2.getWeapon().getBullets(), &this->player1);
-
-    if (prevHP1 != player1.getHP()) {
-        packet4 << player1.getHP();
-
-    }
-    this->socket.send(packet4);
-    this->socket.receive(packet4);
-
-    if(packet4 >> hp1) {
-        this->player2.setHP(hp1);
-    }
-
-    if (prevHP2 != player2.getHP()) {
-        packet4 << player2.getHP();
-
-    }
-    this->socket.send(packet4);
-    this->socket.receive(packet4);
-
-    if(packet4 >> hp2) {
-        this->player1.setHP(hp2);
-    }
-
-    this->healthBar1.setSizeOfHB(this->player1.getHP());
-    this->healthBar2.setSizeOfHB(this->player2.getHP());
-    //hpcka****************************************************************
-
-    //zivoty**********************************************************************
-    sf::Packet packet5;
-    prevLife1 = this->player1.getLife();
-    prevLife2 = this->player2.getLife();
-
-    this->gameplay(&this->player1,&this->healthBar1);
-    this->gameplay(&this->player2,&this->healthBar2);
-
-    if (prevLife1 != player1.getLife()) {
-        packet5 << player1.getLife();
-
-    }
-    this->socket.send(packet5);
-    this->socket.receive(packet5);
-
-    if(packet5 >> life1) {
-        this->player2.setLife(life1);
-    }
-
-    if (prevLife2 != player2.getLife()) {
-        packet5 << player2.getLife();
-
-    }
-    this->socket.send(packet5);
-    this->socket.receive(packet5);
-
-    if(packet5 >> life2) {
-        this->player1.setLife(life2);
-    }
-
-    //zivoty**********************************************************************
-
-    //pocet guliek***********************************************************
-
-    sf:Packet packet6;
-
-    int magSize2;
-    int ij = 0;
-    for(auto &bullet: this->player1.getWeapon().getBullets()) {
-        ij++;
-    }
-
-    if(ij != this->magSize) {
-        packet6 << ij - this->magSize;
-        this->magSize = ij;
-    } else {
-        packet6 << 0;
-    }
-
-    this->socket.send(packet6);
-    this->socket.receive(packet6);
-
-    if (packet6 >> magSize2) {
-        for (int i = 0; i < magSize2; i++) {
+        if (packet6 >> magSize2) {
+            for (int i = 0; i < magSize2; i++) {
                 this->player2.shoot();
+            }
         }
-    }
-    magSize2 = 0;
+        magSize2 = 0;
 
-    //gulky***************************************************************************
-    sf::Packet packet2;
-    sf::Packet packet3;
+        //gulky***************************************************************************
+        sf::Packet packet2;
+        sf::Packet packet3;
 
-    float* aX = new float[500];
-    float* aY = new float[500];
+        float* aX = new float[500];
+        float* aY = new float[500];
 
-    for (int i = 0; i < 500; ++i) {
-        aX[i] = 0;
-        aY[i] = 0;
-    }
-
-    for (auto &bullet : this->player1.getWeapon().getBullets()) {
-        bullet->move();
-        packet2 << bullet->getBulletPositionX();
-        packet3 << bullet->getBulletPositionY();
-    }
-
-    this->socket.send(packet2);
-    this->socket.receive(packet2);
-    this->socket.send(packet3);
-    this->socket.receive(packet3);
-
-    for (int i = 0; i < this->player2.getWeapon().getBullets().size() ; i++) {
-        if (packet2 >> aX[i] && packet3 >> aY[i]) {
-            //packet2 >> aX[i];
-            //packet3 >> aY[i];
+        for (int i = 0; i < 500; ++i) {
+            aX[i] = 0;
+            aY[i] = 0;
         }
+
+        for (auto &bullet : this->player1.getWeapon().getBullets()) {
+            bullet->move();
+            packet2 << bullet->getBulletPositionX();
+            packet3 << bullet->getBulletPositionY();
+        }
+
+        this->socket.send(packet2);
+        this->socket.receive(packet2);
+        this->socket.send(packet3);
+        this->socket.receive(packet3);
+
+        for (int i = 0; i < this->player2.getWeapon().getBullets().size() ; i++) {
+            if (packet2 >> aX[i] && packet3 >> aY[i]) {
+                //packet2 >> aX[i];
+                //packet3 >> aY[i];
+            }
+        }
+
+        int i = 0;
+        for (auto &bullet : this->player2.getWeapon().getBullets()) {
+            bullet->setBulletPosition(aX[i], aY[i]);
+            i++;
+
+        }
+
+        packet2.clear();
+        packet3.clear();
+
+        delete[] aX;
+        delete[] aY;
+        //gulky***************************************************************************
+
+        this->bulletRemove(this->player2.getWeapon().getBullets());
+        this->bulletRemove(this->player1.getWeapon().getBullets());
+
+        this->healthBar1.setSizeOfHB(this->player1.getHP());
+        this->healthBar2.setSizeOfHB(this->player2.getHP());
+
+        (*isUpdated) = true;
+
+        render->notify_one();
+
     }
 
-    int i = 0;
-    for (auto &bullet : this->player2.getWeapon().getBullets()) {
-        bullet->setBulletPosition(aX[i], aY[i]);
-        i++;
-
-    }
-
-    packet2.clear();
-    packet3.clear();
-
-    delete[] aX;
-    delete[] aY;
-    //gulky***************************************************************************
-
-    this->bulletRemove(this->player2.getWeapon().getBullets());
-    this->bulletRemove(this->player1.getWeapon().getBullets());
-
-    this->healthBar1.setSizeOfHB(this->player1.getHP());
-    this->healthBar2.setSizeOfHB(this->player2.getHP());
-
-
-    (*isUpdated) = true;
-    render->notify_one();
 }
 
 void Game::render(bool * isUpdated, std::mutex *mut, std::condition_variable * render, std::condition_variable * update) {
-    //sf::Context context;
-    std::unique_lock<std::mutex> lock(* mut);
-    while (!(*isUpdated)) render->wait(lock);
+    this->gameWindow->setActive(true);
+    while (this->getWindowIsOpen()) {
 
+        std::unique_lock<std::mutex> lock(* mut);
 
-    this->gameWindow->clear();
-    for (int i = 0; i < 4;i++) {
-        this->gameWindow->draw(this->platforms[i].getRect());
-    }
+        while (!(*isUpdated)) render->wait(lock);
 
-    if(this->player1.getLife() > 0) {
-        this->gameWindow->draw(this->player1.getRect());
-    }
-    if(this->player2.getLife() > 0) {
-        this->gameWindow->draw(this->player2.getRect());
-    }
-    for (auto &bullet : this->player1.getWeapon().getBullets()) // access by reference to avoid copying
-    {
-        this->gameWindow->draw(bullet->getBullet());
-    }
+        this->gameWindow->clear();
+        for (int i = 0; i < 4;i++) {
+            this->gameWindow->draw(this->platforms[i].getRect());
+        }
 
-    for (auto &bullet : this->player2.getWeapon().getBullets()) // access by reference to avoid copying
-    {
-        this->gameWindow->draw(bullet->getBullet());
-    }
+        if(this->player1.getLife() > 0) {
+            this->gameWindow->draw(this->player1.getRect());
+        }
+        if(this->player2.getLife() > 0) {
+            this->gameWindow->draw(this->player2.getRect());
+        }
+        for (auto &bullet : this->player1.getWeapon().getBullets()) // access by reference to avoid copying
+        {
+            this->gameWindow->draw(bullet->getBullet());
+        }
 
-    for (int i = 0; i < this->player1.getLife(); i++) {
-        this->gameWindow->draw(this->lifeBar1[i].getLifeBar());
-    }
+        for (auto &bullet : this->player2.getWeapon().getBullets()) // access by reference to avoid copying
+        {
+            this->gameWindow->draw(bullet->getBullet());
+        }
 
-    for (int i = 0; i < this->player2.getLife(); i++) {
-        this->gameWindow->draw(this->lifeBar2[i].getLifeBar());
-    }
+        for (int i = 0; i < this->player1.getLife(); i++) {
+            this->gameWindow->draw(this->lifeBar1[i].getLifeBar());
+        }
 
-    if(this->player1.getLife() > 0) {
-        this->gameWindow->draw(this->healthBar1.getHealthBar());
-    }
-    if(this->player2.getLife() > 0) {
-        this->gameWindow->draw(this->healthBar2.getHealthBar());
-    }
+        for (int i = 0; i < this->player2.getLife(); i++) {
+            this->gameWindow->draw(this->lifeBar2[i].getLifeBar());
+        }
 
-    this->gameWindow->display();
+        if(this->player1.getLife() > 0) {
+            this->gameWindow->draw(this->healthBar1.getHealthBar());
+        }
+        if(this->player2.getLife() > 0) {
+            this->gameWindow->draw(this->healthBar2.getHealthBar());
+        }
 
-    (*isUpdated) = false;
-    update->notify_one();
+        this->gameWindow->display();
+
+        (*isUpdated) = false;
+        update->notify_one();
+
+    }
+    this->gameWindow->setActive(false);
+
 }
 
 void Game::initVariables() {
-    sf::Context context;
     this->gameWindow = nullptr;
     this->magSize = 0;
     std::cout << " (s) for server, (c) for client" << std::endl;
@@ -298,14 +310,16 @@ void Game::initVariables() {
     this->player1.initPlayer(Color::Red);
     this->player2.initPlayer(Color::Green);
 
+
 }
 
 void Game::initWindow() {
-    sf::Context context;
+
     this->videoMode.height = 600;
     this->videoMode.width = 800;
     this->gameWindow = new RenderWindow(this->videoMode, "GunMayhem", sf::Style::Titlebar | sf::Style::Close);
     this->gameWindow->setFramerateLimit(60);
+
 }
 
 const bool Game::getWindowIsOpen() {
@@ -313,7 +327,10 @@ const bool Game::getWindowIsOpen() {
 }
 
 void Game::pollEvents() {
+
+
     while (this->gameWindow->pollEvent(this->event)) {
+        this->gameWindow->setActive(true);
         switch (this->event.type) {
             case Event::Closed:
                 this->gameWindow->close();
@@ -357,32 +374,40 @@ void Game::pollEvents() {
             }
 
         }
+        this->gameWindow->setActive(false);
     }
+
 }
 
 
 void Game::hitboxes(std::vector<Bullet*> bullets, Player *player) {
+
+    this->gameWindow->setActive(true);
     for (auto &bullet : bullets) {
         if(player->getRect().getGlobalBounds().intersects(bullet->getRect().getGlobalBounds())) {
             player->setHP((player->getHP() - 25));
             bullet->setBulletPosition(2000,2000);
         }
     }
-
+    this->gameWindow->setActive(false);
 }
 
 
 void Game::gameplay(Player *player, HealthBar *healthBar) {
+    this->gameWindow->setActive(true);
     if(player->getHP() <= 0 || player->getRect().getPosition().y > 1200) {
         player->getRect().setPosition(400,-200);
         player->setLife(player->getLife() - 1);
         player->setHP(100);
         healthBar->setSizeOfHB(100);
     }
+    this->gameWindow->setActive(false);
 }
 
 
 void Game::gravitation() {
+
+    this->gameWindow->setActive(true);
     if(this->player1.isJumping1()) {
         this->player1.setVelY(-10.f);
         time++;
@@ -404,6 +429,7 @@ void Game::gravitation() {
         }
 
     }
+    this->gameWindow->setActive(false);
 }
 
 void Game::bulletRemove(std::vector<Bullet*> bullets) {
@@ -414,4 +440,8 @@ void Game::bulletRemove(std::vector<Bullet*> bullets) {
             }
         }
     }
+}
+
+RenderWindow *Game::getGameWindow() const {
+    return gameWindow;
 }
