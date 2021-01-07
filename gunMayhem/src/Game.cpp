@@ -243,7 +243,7 @@ void Game::render() {
 void Game::initVariables() {
     this->gameWindow = nullptr;
     this->magSize = 0;
-    std::cout << " (s) for server, (c) for client" << std::endl;
+    std::cout << "Type (s) for server, (c) for client." << std::endl;
     std::cin >> this->connectionType;
 
     if (this->connectionType == 's') {
@@ -252,9 +252,14 @@ void Game::initVariables() {
         listener.accept(this->socket);
     } else {
         sf::IpAddress sIP;
-        std::cout << " Enter server IP" << std::endl;
+        std::cout << "Enter server IP." << std::endl;
         std::cin >> sIP;
-        socket.connect(sIP,2010);
+        if(!socket.connect(sIP,2010)) {
+            std::cout << "You have been connected to the server." << std::endl;
+        } else {
+            std::cout << "Connection failed." << std::endl;
+        }
+
     }
 
     Platform p1;
