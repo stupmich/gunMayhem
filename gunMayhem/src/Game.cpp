@@ -251,7 +251,10 @@ void Game::initVariables() {
         listener.listen(2010);
         listener.accept(this->socket);
     } else {
-        socket.connect(this->ip,2010);
+        sf::IpAddress sIP;
+        std::cout << " Enter server IP" << std::endl;
+        std::cin >> sIP;
+        socket.connect(sIP,2010);
     }
 
     Platform p1;
