@@ -11,12 +11,34 @@ Game::~Game() {
 }
 
 void Game::update() {
-    //sf::Context context;
-    //while(this->gameWindow->isOpen()) {
-        this->pollEvents();
+
+    this->pollEvents();
+
+    sf::Packet packet7;
+
+    if (this->player1.isRestart()) {
+        packet7 << 1;
+    } else {
+        packet7 << 0;
+    }
+    this->socket.send(packet7);
+    this->socket.receive(packet7);
+    int restart = 0;
+    if (packet7 >> restart) {
+        if (restart == 1) {
+            this->player2.setRestart(true);
+        }
+    }
+
+    if (this->player2.isRestart() && this->player1.isRestart()) {
+        this->restart();
+        this->player1.setRestart(false);
+        this->player2.setRestart(false);
+    }
+
+    if(this->player1.getLife() > 0 && this->player2.getLife() > 0) {
+
         this->gravitation();
-
-
 
         sf::Vector2f prevPosition, p2Position;
         int prevHP1, hp1, prevHP2, hp2, prevLife1, prevLife2, life1, life2;
@@ -112,8 +134,7 @@ void Game::update() {
 
         //pocet guliek***********************************************************
 
-        sf:
-        Packet packet6;
+        sf::Packet packet6;
 
         int magSize2;
         int ij = 0;
@@ -163,8 +184,7 @@ void Game::update() {
 
         for (int i = 0; i < this->player2.getWeapon().getBullets().size(); i++) {
             if (packet2 >> aX[i] && packet3 >> aY[i]) {
-                //packet2 >> aX[i];
-                //packet3 >> aY[i];
+
             }
         }
 
@@ -181,7 +201,6 @@ void Game::update() {
         delete[] aX;
         delete[] aY;
         //gulky***************************************************************************
-
         this->bulletRemove(this->player2.getWeapon().getBullets());
         this->bulletRemove(this->player1.getWeapon().getBullets());
 
@@ -190,14 +209,34 @@ void Game::update() {
 
 
 
-    //}
+    }
 }
 
 void Game::render() {
-    //while(this->gameWindow->isOpen()) {
 
 
+    if (this->player1.getLife() <= 0 || this->player2.getLife() <= 0) {
+        this->gameWindow->clear();
+        if(this->player1.getLife() <= 0) {
+            sf::Image victory;
+            victory.loadFromFile("Images/defeat.png");
+            sf::Texture texture;
+            texture.loadFromImage(victory);
+            sf::Sprite sprite;
+            sprite.setTexture(texture, true);
+            this->gameWindow->draw(sprite);
+        } else if (this->player2.getLife() <= 0) {
+            sf::Image victory;
+            victory.loadFromFile("Images/Victory.jpg");
+            sf::Texture texture;
+            texture.loadFromImage(victory);
+            sf::Sprite sprite;
+            sprite.setTexture(texture, true);
+            this->gameWindow->draw(sprite);
+        }
+        this->gameWindow->display();
 
+    } else {
         this->gameWindow->clear();
         for (int i = 0; i < 4;i++) {
             this->gameWindow->draw(this->platforms[i].getRect());
@@ -235,15 +274,13 @@ void Game::render() {
         }
 
         this->gameWindow->display();
-
-
-    //}
+    }
 }
 
 void Game::initVariables() {
     this->gameWindow = nullptr;
     this->magSize = 0;
-    std::cout << "Type (s) for server, (c) for client." << std::endl;
+    std::cout << " (s) for server, (c) for client" << std::endl;
     std::cin >> this->connectionType;
 
     if (this->connectionType == 's') {
@@ -259,7 +296,6 @@ void Game::initVariables() {
         } else {
             std::cout << "Connection failed." << std::endl;
         }
-
     }
 
     Platform p1;
@@ -345,6 +381,8 @@ void Game::pollEvents() {
                     this->player1.setVelX(0.f);
                 } else if(event.key.code == Keyboard::C) {
                     this->player1.shoot();
+                } else if(event.key.code == Keyboard::R) {
+                    this->player1.setRestart(true);
                 }
                 break;
 
@@ -430,6 +468,15 @@ void Game::bulletRemove(std::vector<Bullet*> bullets) {
 
 RenderWindow *Game::getGameWindow() const {
     return gameWindow;
+}
+
+void Game::restart() {
+    this->player1.setLife(3);
+    this->player1.setHP(100);
+    this->player2.setLife(3);
+    this->player2.setHP(100);
+    this->player1.getRect().setPosition(100,-20);
+    this->player1.getRect().setPosition(100,-20);
 }
 
 

@@ -96,3 +96,11 @@ void Player::setPosition(float parX, float parY) {
     std::cout << parX << parY;
     this->rect.setPosition(parX, parY);
 }
+
+bool Player::isRestart() const {
+    return restart;
+}
+
+void Player::setRestart(bool restart) {
+    Player::restart = restart;
+}
