@@ -28,9 +28,11 @@ private:
     Weapon weapon;
     int HP;
     int Life;
+    bool restart = false;
+public:
+    bool isRestart() const;
 
-
-
+    void setRestart(bool restart);
 
 
 public:

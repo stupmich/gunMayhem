@@ -52,7 +52,7 @@ public:
 
     Game();
     virtual ~Game();
-
+    void restart();
     const bool getWindowIsOpen();
     void update();
     void pollEvents();
