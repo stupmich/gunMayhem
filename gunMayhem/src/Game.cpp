@@ -280,6 +280,11 @@ void Game::render() {
 void Game::initVariables() {
     this->gameWindow = nullptr;
     this->magSize = 0;
+    std::cout << " *******CONTROL*******" << std::endl;
+    std::cout << "   Movement - W A S D" << std::endl;
+    std::cout << "       Shoot - C" << std::endl;
+    std::cout << "  Vote for restart - R" << std::endl;
+    std::cout << " *********************" << std::endl;
     std::cout << " (s) for server, (c) for client" << std::endl;
     std::cin >> this->connectionType;
 
