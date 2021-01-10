@@ -3,8 +3,6 @@
 #define GUNMAYHEM_WEAPON_H
 
 
-
-
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>

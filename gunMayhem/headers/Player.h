@@ -52,22 +52,14 @@ public:
     void setVelX(float velX);
     void setIsOnGround(bool isOnGround);
     void setIsJumping(bool isJumping);
-
-    float getVelY() const;
-    float getVelX() const;
-
-    bool isLookingRight() const;
     void setLookingRight(bool look);
     const Weapon &getWeapon() const;
     void setHP(int hp);
     int getHP();
     void initPlayer(Color c);
-    void moveRight();
-    void moveLeft();
     void move();
-    void jump();
     void shoot();
-    void setPosition(float parX, float parY);
+
 };
 
 

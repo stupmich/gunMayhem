@@ -26,6 +26,7 @@ void update(bool * isUpdated, std::mutex *mut, std::condition_variable * render,
 }
 
 int main() {
+    setenv("DISPLAY","192.168.0.104:7.0",true);
     std::mutex mut;
     std::condition_variable rend, upd;
     bool isUpdated = false;

@@ -30,10 +30,6 @@ void Player::move() {
     }
 }
 
-bool Player::isLookingRight() const{
-    return lookingRight;
-}
-
 void Player::setLookingRight(bool look) {
     lookingRight = look;
 }
@@ -92,10 +88,7 @@ void Player::setLife(int life) {
     Life = life;
 }
 
-void Player::setPosition(float parX, float parY) {
-    std::cout << parX << parY;
-    this->rect.setPosition(parX, parY);
-}
+
 
 bool Player::isRestart() const {
     return restart;
